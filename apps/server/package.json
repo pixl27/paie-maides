@@ -1,0 +1,25 @@
+{
+  "name": "@maides/server",
+  "version": "0.1.0",
+  "private": true,
+  "description": "Serveur HTTP du constructeur maides : expose le runtime générique (écrans définis par données).",
+  "type": "module",
+  "main": "./src/index.ts",
+  "scripts": {
+    "start": "tsx src/index.ts",
+    "start:assurance": "tsx src/serveur-assurance.ts",
+    "start:paie": "tsx src/serveur-paie.ts",
+    "dev": "tsx watch src/index.ts",
+    "test": "vitest run",
+    "typecheck": "tsc -p tsconfig.json"
+  },
+  "dependencies": {
+    "@maides/core": "*",
+    "tsx": "^4.16.0"
+  },
+  "devDependencies": {
+    "typescript": "^5.5.4",
+    "vitest": "^2.0.5",
+    "@types/node": "^20.14.0"
+  }
+}

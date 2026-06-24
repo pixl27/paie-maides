@@ -1,0 +1,23 @@
+{
+  "name": "@maides/core",
+  "version": "0.1.0",
+  "private": true,
+  "description": "Moteurs méta du constructeur maides : langage d'expressions, métamodèle, couches R4, runtime générique.",
+  "type": "module",
+  "main": "./src/index.ts",
+  "exports": {
+    ".": "./src/index.ts",
+    "./expression": "./src/expression/index.ts"
+  },
+  "scripts": {
+    "test": "vitest run",
+    "test:watch": "vitest",
+    "build": "tsc -p tsconfig.build.json",
+    "typecheck": "tsc -p tsconfig.json"
+  },
+  "devDependencies": {
+    "typescript": "^5.5.4",
+    "vitest": "^2.0.5",
+    "@types/node": "^20.14.0"
+  }
+}

@@ -1,0 +1,29 @@
+# Blueprint Render pour l'application de PAIE (maides).
+# Déploiement : sur https://render.com -> New -> Blueprint -> choisir ce dépôt.
+#
+# Par défaut : plan GRATUIT (démo). ATTENTION : sans disque, les données sont
+# remises à zéro à chaque redéploiement / réveil. Pour conserver les bulletins,
+# voir le bloc « PERSISTANCE » plus bas (nécessite un plan payant + un disque).
+services:
+  - type: web
+    name: paie-maides
+    runtime: node
+    region: frankfurt          # proche de la France ; voir aussi : oregon, ohio, singapore
+    plan: free                 # gratuit. Pour la persistance : remplacer par "starter"
+    buildCommand: npm install
+    startCommand: npm run start:paie -w @maides/server
+    healthCheckPath: /login
+    envVars:
+      - key: NODE_VERSION
+        value: "20.19.0"
+      # --- PERSISTANCE (décommenter avec un plan payant) ---
+      # - key: PAIE_DATA
+      #   value: /data
+
+    # --- PERSISTANCE (décommenter ET passer plan: free -> starter) ---
+    # Un disque garde les données (employeurs, salariés, rubriques, bulletins)
+    # entre les redéploiements. ~0,25 $/Go/mois en plus du plan starter (~7 $/mois).
+    # disk:
+    #   name: paie-data
+    #   mountPath: /data
+    #   sizeGB: 1
