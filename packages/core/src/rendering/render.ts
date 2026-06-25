@@ -42,6 +42,7 @@ export function renderTemplate(template: string, zzz: Zzz, options: RenderOption
         lectureSeule: options.lectureSeule || droit?.ro,
         acces: options.acces,
         cle: zzz.cle.join('.'),
+        valeurs: zzz.valeurs,
       });
     }
     // mode document ou variable simple : substitution de la valeur
@@ -64,6 +65,7 @@ function renderTousChamps(zzz: Zzz, options: RenderOptions): string {
       lectureSeule: options.lectureSeule || zzz.droits?.[nom]?.ro,
       acces: options.acces,
       cle: zzz.cle.join('.'),
+      valeurs: zzz.valeurs,
     }))
     .join('\n');
 }

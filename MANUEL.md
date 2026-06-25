@@ -78,7 +78,7 @@ maides server: http://localhost:3000/  (login: admin / admin)
 > Pour changer le port : `PORT=3001 npm start -w @maides/server`.
 
 ### L'interface (repères de navigation)
-- **Barre du haut** (présente partout) : logo *maides* (→ Accueil), onglets
+- **Barre du haut** (présente partout) : logo *Maxima* (→ Accueil), onglets
   **Accueil** et **Designer**, votre nom et **Déconnexion**.
 - **Accueil** : vos applications, présentées en **tuiles** regroupées par section.
 - Sur chaque écran : un **fil d'Ariane**, un **badge** indiquant le mode en cours

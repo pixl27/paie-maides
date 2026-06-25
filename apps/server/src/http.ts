@@ -128,7 +128,7 @@ export function demarrer(app: MaidesApp, port = 3000, options: { spaDir?: string
 
   server.listen(port, () => {
 
-    console.log(`maides server: http://localhost:${port}/  (login: admin / admin)`);
+    console.log(`Maxima server: http://localhost:${port}/  (login: admin / admin)`);
   });
   return server;
 }

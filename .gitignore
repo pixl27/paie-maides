@@ -7,3 +7,5 @@ coverage/
 .DS_Store
 paie-data/
 **/paie-data/
+compta-data/
+**/compta-data/

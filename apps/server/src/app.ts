@@ -116,7 +116,7 @@ export class MaidesApp {
   private ged = new Map<string, { nom: string; type: string; buf: Buffer }>();
 
   constructor(private r4: R4, options: MaidesAppOptions = {}) {
-    this.titre = options.titre ?? 'maides';
+    this.titre = options.titre ?? 'Maxima';
     this.userStore = options.userStore;
     this.menuEntries = options.menuEntries ?? [];
     this.specifiques = options.specifiques;
@@ -297,7 +297,7 @@ export class MaidesApp {
     const corps =
       `<div class="guide-section"><span class="eyebrow">Aide</span>` +
       `<h1>Comment ça marche</h1>` +
-      `<p>maides est un <strong>atelier pour fabriquer des applications de gestion sans programmer</strong>. ` +
+      `<p>Maxima est un <strong>atelier pour fabriquer des applications de gestion sans programmer</strong>. ` +
       `On décrit des <strong>tables</strong> (où sont rangées les données), des <strong>écrans</strong> (les formulaires) ` +
       `et des <strong>règles de calcul</strong> ; l'application fonctionne aussitôt.</p></div>` +
 

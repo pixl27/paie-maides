@@ -114,7 +114,7 @@ const menuEntries: MenuEntry[] = [
   { menu_position: 'z900', menu_libelle: 'Designer (low-code)', menu_script: '/designer' },
 ];
 
-const app = new MaidesApp(r4, { titre: 'Assurance (low-code maides)', userStore, menuEntries, designerStore: params });
+const app = new MaidesApp(r4, { titre: 'Assurance — Maxima', userStore, menuEntries, designerStore: params });
 
 const port = Number(process.env.PORT ?? 3000);
 const spaDir = fileURLToPath(new URL('../../web/dist', import.meta.url));

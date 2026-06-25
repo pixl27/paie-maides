@@ -43,6 +43,26 @@ export interface RenderContexte {
   acces?: WidgetDataAcces;
   /** Clé du document courant (pour les liens / documents). */
   cle?: string;
+  /** Valeurs de l'enregistrement courant (pour les filtres dynamiques $champ). */
+  valeurs?: Record<string, any>;
+}
+
+/**
+ * Interpole les `$champ` d'un filtre de widget (selectList/recordList/aggregate…)
+ * avec les valeurs de l'enregistrement courant. Permet « grand livre par compte »
+ * (filtre `compte = $cpt_num`) ou le détail d'un maître (`ecr_id = $ecr_1`).
+ */
+function interpoleFiltre(filtre: string | undefined, valeurs?: Record<string, any>): string | undefined {
+  if (!filtre || !valeurs) return filtre;
+  let vide = false;
+  const out = filtre.replace(/\$([a-zA-Z_]\w*)/g, (_m, nom: string) => {
+    const v = valeurs[nom];
+    if (v == null || v === '') { vide = true; return ''; }
+    return String(v);
+  });
+  // Une variable de filtre vide (maître pas encore enregistré : clé absente) ⇒ on ne
+  // matche RIEN, plutôt que les enfants à clé étrangère vide (détail d'un nouveau document).
+  return vide ? '1 = 0' : out;
 }
 
 /**
@@ -351,7 +371,7 @@ enregistre('selectFic', (ctx) => {
 /** Résultat d'agrégat affiché (port de selectAggregate). */
 enregistre('selectAggregate', (ctx) => {
   const o = lireOptions(ctx.widget);
-  const res = ctx.acces?.aggregate?.(o['operation'] ?? 'somme', o['table'] ?? '', o['champ'] ?? '', o['filtre'] ?? '') ?? 0;
+  const res = ctx.acces?.aggregate?.(o['operation'] ?? 'somme', o['table'] ?? '', o['champ'] ?? '', interpoleFiltre(o['filtre'], ctx.valeurs) ?? '') ?? 0;
   return `<span${attrs(baseAttrs(ctx, { class: 'md-aggregate' }))}>${escapeHtml(res)}</span>`;
 });
 
@@ -393,14 +413,14 @@ function renderTableListe(ctx: RenderContexte, lignes: Record<string, any>[], cl
 /** Liste d'enregistrements depuis une vue (port de recordList). */
 enregistre('recordList', (ctx) => {
   const o = lireOptions(ctx.widget);
-  const lignes = ctx.acces?.lignes?.({ table: o['index'] ?? ctx.widget.index ?? '', filtre: o['filtre'], tri: o['tri'] }) ?? [];
+  const lignes = ctx.acces?.lignes?.({ table: o['index'] ?? ctx.widget.index ?? '', filtre: interpoleFiltre(o['filtre'], ctx.valeurs), tri: o['tri'] }) ?? [];
   return renderTableListe(ctx, lignes, 'list record-list');
 });
 
 /** Liste construite par sélection sur une table (port de selectList). */
 enregistre('selectList', (ctx) => {
   const o = lireOptions(ctx.widget);
-  const lignes = ctx.acces?.lignes?.({ table: o['table'] ?? ctx.widget.table ?? '', filtre: o['filtre'], tri: o['tri'] }) ?? [];
+  const lignes = ctx.acces?.lignes?.({ table: o['table'] ?? ctx.widget.table ?? '', filtre: interpoleFiltre(o['filtre'], ctx.valeurs), tri: o['tri'] }) ?? [];
   return renderTableListe(ctx, lignes, 'list record-list');
 });
 
@@ -413,7 +433,7 @@ enregistre('arrayList', (ctx) => {
 /** Rapport paginé depuis une requête (port de dataReport). */
 enregistre('dataReport', (ctx) => {
   const o = lireOptions(ctx.widget);
-  const lignes = ctx.acces?.lignes?.({ table: o['requete'] ?? ctx.widget.requete ?? '', filtre: o['filtre'], tri: o['tri'] }) ?? [];
+  const lignes = ctx.acces?.lignes?.({ table: o['requete'] ?? ctx.widget.requete ?? '', filtre: interpoleFiltre(o['filtre'], ctx.valeurs), tri: o['tri'] }) ?? [];
   const parPage = Number(o['ligne_par_page'] ?? 30);
   return renderTableListe({ ...ctx, widget: { ...ctx.widget, option_type_widget: ctx.widget.option_type_widget } }, lignes.slice(0, parPage), 'report-list');
 });
@@ -430,7 +450,7 @@ enregistre('editableArray', (ctx) => {
   const o = lireOptions(ctx.widget);
   const secran = o['secran'] ?? ctx.widget.secran ?? '';
   const ro = estLectureSeule(ctx);
-  const lignes = ctx.acces?.lignes?.({ table: o['table'] ?? secran, filtre: o['filtre'], tri: o['tri'] }) ?? [];
+  const lignes = ctx.acces?.lignes?.({ table: o['table'] ?? secran, filtre: interpoleFiltre(o['filtre'], ctx.valeurs), tri: o['tri'] }) ?? [];
   const colonnes = colonnesDepuisOption(o['cols']);
   const cols = colonnes.length ? colonnes
     : (lignes[0] ? Object.keys(lignes[0]).filter((k) => !k.startsWith('_')).map((k) => ({ champ: k, libelle: k })) : []);

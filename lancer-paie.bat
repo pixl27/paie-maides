@@ -1,9 +1,9 @@
 @echo off
 chcp 65001 >nul
 cd /d "%~dp0"
-title Application de PAIE (maides)
+title Application de PAIE (Maxima)
 echo ============================================================
-echo    Application de PAIE - maides
+echo    Application de PAIE - Maxima
 echo ============================================================
 echo.
 

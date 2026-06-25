@@ -68,5 +68,5 @@ export function creerAppDemo(): MaidesApp {
     },
   });
 
-  return new MaidesApp(r4, { titre: 'Démo maides', userStore, menuEntries, designerStore: params, specifiques });
+  return new MaidesApp(r4, { titre: 'Démo Maxima', userStore, menuEntries, designerStore: params, specifiques });
 }

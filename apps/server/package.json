@@ -9,6 +9,7 @@
     "start": "tsx src/index.ts",
     "start:assurance": "tsx src/serveur-assurance.ts",
     "start:paie": "tsx src/serveur-paie.ts",
+    "start:compta": "tsx src/serveur-compta.ts",
     "dev": "tsx watch src/index.ts",
     "test": "vitest run",
     "typecheck": "tsc -p tsconfig.json"

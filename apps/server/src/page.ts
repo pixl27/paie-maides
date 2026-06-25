@@ -54,8 +54,8 @@ export interface PageOptions {
 /** Enveloppe un contenu dans une page HTML complète. */
 export function renderPage(titre: string, contenu: string, messages: ExpMessage[] = [], options: PageOptions = {}): string {
   const marque = options.hideNav
-    ? `<span class="brand"><b>maides</b><i>constructeur</i></span>`
-    : `<a class="brand" href="/menu"><b>maides</b><i>constructeur</i></a>`;
+    ? `<span class="brand"><b>Maxima</b><i>gestion</i></span>`
+    : `<a class="brand" href="/menu"><b>Maxima</b><i>gestion</i></a>`;
   const lien = (href: string, label: string, sec: string) =>
     `<a class="topnav__a${options.section === sec ? ' is-actif' : ''}" href="${href}">${label}</a>`;
   const nav = options.hideNav ? '' :
@@ -87,7 +87,7 @@ export function renderPage(titre: string, contenu: string, messages: ExpMessage[
 <head>
 <meta charset="utf-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1" />
-<title>${escape(titre)} — maides</title>
+<title>${escape(titre)} — Maxima</title>
 <style>
   :root{
     --bg:#e6ebf2; --surface:#ffffff; --ink:#1b2433; --muted:#5d6b7e;

@@ -22,7 +22,7 @@ const userStore = new MemoryUserStore();
 userStore.creer('admin', 'admin', { super_admin: 'O', niveau: 0 });
 userStore.creer('gestionnaire', 'gestionnaire', { super_admin: 'N', niveau: 5 }); // ne voit pas le coût employeur
 
-const app = new MaidesApp(r4, { titre: 'Paie (low-code maides)', userStore, menuEntries, designerStore: params });
+const app = new MaidesApp(r4, { titre: 'Paie — Maxima', userStore, menuEntries, designerStore: params });
 
 const port = Number(process.env.PORT ?? 3000);
 const spaDir = fileURLToPath(new URL('../../web/dist', import.meta.url));

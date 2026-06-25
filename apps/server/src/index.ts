@@ -15,5 +15,5 @@ const options = { publicDir, ...(existsSync(spaDir) ? { spaDir } : {}) };
 demarrer(creerAppDemo(), port, options);
 if (options.spaDir) {
 
-  console.log(`maides SPA: http://localhost:${port}/app`);
+  console.log(`Maxima SPA: http://localhost:${port}/app`);
 }

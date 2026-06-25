@@ -40,7 +40,7 @@ export function App() {
   return (
     <div className="md-app">
       <header className="md-top">
-        <strong onClick={() => user && allerMenu()} style={{ cursor: 'pointer' }}>maides · atelier</strong>
+        <strong onClick={() => user && allerMenu()} style={{ cursor: 'pointer' }}>Maxima · atelier</strong>
         {user && <span className="md-user">{user.login}{user.superAdmin ? ' (admin)' : ''} · <a onClick={async () => { await api.logout(); setUser(null); setVue({ nom: 'login' }); }}>déconnexion</a></span>}
       </header>
 

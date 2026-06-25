@@ -15,7 +15,8 @@ import { r4Providers } from '../r4/expression-provider.js';
 import { Providers, UserInfo, ExpMessage } from '../expression/env.js';
 import { retVal } from '../expression/value.js';
 import { initRecord, keyFromRecord, coerceValeur } from '../metamodel/record.js';
-import { keyPaddee, cleVide } from '../data/keys.js';
+import { keyPaddee, cleVide, cmpElem } from '../data/keys.js';
+import { evalCondition } from '../data/conditions.js';
 import { Zzz } from './zzz.js';
 import { Ecran, Widget } from './ecran.js';
 import { formulage, moteurSurZzz, EvalContext } from './formulage.js';
@@ -643,7 +644,18 @@ export class Runtime {
         // table peut être une vue : on tente l'exécution de vue, sinon table brute
         const parVue = this.r4.chargeVue(spec.table) ? this.r4.executeVueParNom(spec.table) : null;
         const rows = parVue ?? this.r4.recordsDe(spec.table);
-        const filtres = spec.filtre ? rows.filter((r) => this.filtreSimple(spec.filtre!, r)) : rows;
+        const filtres = spec.filtre ? rows.filter((r) => evalCondition(spec.filtre!, r)) : rows.slice();
+        // tri (option `tri=champ` ou `champ desc`, plusieurs séparés par des virgules)
+        if (spec.tri) {
+          const clauses = spec.tri.split(',').map((s) => s.trim()).filter(Boolean).map((s) => {
+            const desc = /\s+desc$/i.test(s);
+            return { champ: s.replace(/\s+(asc|desc)$/i, '').trim(), sens: desc ? -1 : 1 };
+          });
+          filtres.sort((a, b) => {
+            for (const c of clauses) { const d = cmpElem(a[c.champ], b[c.champ]); if (d !== 0) return d * c.sens; }
+            return 0;
+          });
+        }
         // expose __cle__ (clé cliquable) : dérivée de _id (= "<table>.<clé>") si absente
         return filtres.map((r) => {
           if (r.__cle__ != null) return r;
@@ -664,12 +676,6 @@ export class Runtime {
       },
       urlDocument: (table, cle, champ) => `/doc?t=${encodeURIComponent(table)}&b=${encodeURIComponent(cle)}&c=${encodeURIComponent(champ)}`,
     };
-  }
-
-  private filtreSimple(filtre: string, rec: Record<string, any>): boolean {
-    const m = /^\s*(\w+)\s*=\s*(.+?)\s*$/.exec(filtre);
-    if (!m) return true;
-    return String(rec[m[1]!]) === m[2]!.replace(/^['"]|['"]$/g, '');
   }
 
   private tableDeEcran(e: string): string {
