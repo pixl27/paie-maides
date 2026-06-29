@@ -36,7 +36,8 @@ export interface Vignetteur {
 /** Génère le HTML d'un document (lettre) pour une clé donnée. */
 export function genererDocumentHtml(runtime: Runtime, nomLettre: string, cle: string[]): string {
   const zzz = runtime.visu(nomLettre, cle, 'let');
-  return renderEcran(zzz, { mode: 'document' });
+  // acces fourni : permet de rendre les widgets-listes (grand livre, journal…) dans le document.
+  return renderEcran(zzz, { mode: 'document', acces: runtime.accesDonnees() });
 }
 
 /** Génère un PDF d'un document via un PdfRenderer injecté (vérifie que la sortie est bien un PDF). */

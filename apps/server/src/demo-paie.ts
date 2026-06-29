@@ -3,7 +3,7 @@
  * Lancer :  npx tsx apps/server/src/demo-paie.ts
  */
 import { Runtime } from '@maides/core';
-import { construitPaie } from './paie.js';
+import { construitPaie } from './paie/index.js';
 
 const { r4 } = construitPaie();
 const admin = new Runtime(r4, { user: { login: 'admin', superAdmin: true, niveau: 0 } });

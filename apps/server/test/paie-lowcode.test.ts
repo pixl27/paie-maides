@@ -3,7 +3,7 @@ import { mkdtempSync, rmSync } from 'node:fs';
 import { tmpdir } from 'node:os';
 import { join } from 'node:path';
 import { Runtime, FormuleEditor, TableParamEditor } from '@maides/core';
-import { construitPaie } from '../src/paie.js';
+import { construitPaie } from '../src/paie/index.js';
 
 const ADMIN = { login: 'admin', superAdmin: true, niveau: 0 };
 

@@ -12,7 +12,7 @@ import { fileURLToPath } from 'node:url';
 import { MemoryUserStore } from '@maides/core';
 import { MaidesApp } from './app.js';
 import { demarrer } from './http.js';
-import { construitPaie } from './paie.js';
+import { construitPaie } from './paie/index.js';
 
 // Données PERSISTÉES sur disque (survivent aux redémarrages).
 const dossierData = process.env.PAIE_DATA ?? fileURLToPath(new URL('../paie-data', import.meta.url));

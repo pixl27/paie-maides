@@ -455,6 +455,19 @@ enregistre('editableArray', (ctx) => {
   const cols = colonnes.length ? colonnes
     : (lignes[0] ? Object.keys(lignes[0]).filter((k) => !k.startsWith('_')).map((k) => ({ champ: k, libelle: k })) : []);
   const slug = (s: string) => String(s).replace(/[^a-zA-Z0-9]+/g, '_');
+  // Lien maître→détail (option `lien=champ_fk`) : chaque ligne reçoit la clé du
+  // document maître dans sa clé étrangère ; `liencopie=champ1,champ2` recopie en
+  // plus des champs de l'en-tête (date, journal…) dans des cellules cachées.
+  const lien = o['lien'] ?? '';
+  // Maître pas encore enregistré (clé vide) : on désactive la grille pour éviter
+  // une ligne orpheline qui échouerait silencieusement (erreur dans une cellule cachée).
+  const maitreVide = !!lien && !String(ctx.cle ?? '');
+  const champInvisible = (name: string, val: any): string =>
+    `<input${attrs({ value: val ?? '', 'data-name': name, 'data-eaf': ro ? undefined : '1', readonly: ro })} />`;
+  const copies = (o['liencopie'] ?? '').split(',').map((s) => s.trim()).filter(Boolean);
+  const lienCell = lien
+    ? `<td class="md-ea-lien" style="display:none">${champInvisible(lien, ctx.cle)}${copies.map((c) => champInvisible(c, ctx.valeurs?.[c])).join('')}</td>`
+    : '';
   const cellule = (champ: string, idx: number, cle: string, valeur: any, tpl: boolean): string => {
     const at: Record<string, any> = {
       name: tpl ? `__insert__${champ}` : `_ml_${champ}[${cle}]`,
@@ -470,15 +483,16 @@ enregistre('editableArray', (ctx) => {
   const corps = lignes.map((rec) => {
     const cle = String(rec['__cle__'] ?? rec['_id'] ?? '');
     const cells = cols.map((c, i) => cellule(c.champ, i, cle, rec[c.champ], false)).join('');
-    return `<tr class="ligne-multi-container"${attrs({ 'data-e': secran, 'data-b': cle, 'data-tag': slug(cle) })}>${cells}${actions(true)}</tr>`;
+    return `<tr class="ligne-multi-container"${attrs({ 'data-e': secran, 'data-b': cle, 'data-tag': slug(cle) })}>${lienCell}${cells}${actions(true)}</tr>`;
   }).join('');
-  const tpl = ro ? '' :
+  const tpl = (ro || maitreVide) ? '' :
     `<tr class="ligne-multi-container" data-template="insert"${attrs({ 'data-e': secran, 'data-b': '' })} style="display:none">`
-    + `${cols.map((c, i) => cellule(c.champ, i, '', '', true)).join('')}${actions(false)}</tr>`;
-  const barre = ro ? '' :
+    + `${lienCell}${cols.map((c, i) => cellule(c.champ, i, '', '', true)).join('')}${actions(false)}</tr>`;
+  const barre = (ro || maitreVide) ? '' :
     `<div class="md-ea-barre"><button type="button" class="md-ea-add" data-cible="${escapeHtml(ctx.nomChamp)}">+ Ajouter une ligne</button></div>`;
-  return `<table${attrs({ id: ctx.nomChamp, class: 'editable-record-list', 'data-secran': secran })}>`
-    + `<thead>${thead}</thead><tbody>${corps}${tpl}</tbody></table>${barre}`;
+  const aide = maitreVide ? `<p class="md-aide">Enregistrez d’abord l’en-tête, puis ajoutez les lignes ici.</p>` : '';
+  return `<table${attrs({ id: ctx.nomChamp, class: 'editable-record-list', 'data-secran': secran, 'data-maitre-vide': maitreVide ? '1' : undefined })}>`
+    + `<thead>${thead}</thead><tbody>${corps}${tpl}</tbody></table>${aide}${barre}`;
 });
 
 /** Sous-écrans empilés (port de sousEcranMulti). Chaque bloc est un sous-document

@@ -17,6 +17,9 @@ import { compileTemplate, type CompileTemplateContexte } from './template-compil
 /** Placeholder de variable dans un gabarit : $nom (lettres, chiffres, _ et []). */
 const PLACEHOLDER = /\$([a-zA-Z0-9_]+)/g;
 
+/** Widgets-listes rendus (en lecture seule) même en mode document (états PDF). */
+const WIDGETS_LISTE_DOC = new Set(['selectList', 'recordList', 'dataReport', 'arrayList', 'selectAggregate', 'editableArray', 'querabiliteList']);
+
 export interface RenderOptions {
   /** 'form' = widgets éditables ; 'document' = substitution de valeurs. */
   mode?: 'form' | 'document';
@@ -40,6 +43,19 @@ export function renderTemplate(template: string, zzz: Zzz, options: RenderOption
         valeur: zzz.valeurs[nom],
         erreurs: widget.messerr,
         lectureSeule: options.lectureSeule || droit?.ro,
+        acces: options.acces,
+        cle: zzz.cle.join('.'),
+        valeurs: zzz.valeurs,
+      });
+    }
+    // mode document (impression/PDF) : on rend AUSSI les widgets-listes (tableaux
+    // en lecture seule), pour des états imprimables (grand livre, journal, écriture…).
+    if (mode === 'document' && widget && WIDGETS_LISTE_DOC.has(widget.type_widget ?? '')) {
+      return renderWidget({
+        nomChamp: nom,
+        widget,
+        valeur: zzz.valeurs[nom],
+        lectureSeule: true,
         acces: options.acces,
         cle: zzz.cle.join('.'),
         valeurs: zzz.valeurs,

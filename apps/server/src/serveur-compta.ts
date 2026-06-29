@@ -12,7 +12,7 @@ import { fileURLToPath } from 'node:url';
 import { MemoryUserStore } from '@maides/core';
 import { MaidesApp } from './app.js';
 import { demarrer } from './http.js';
-import { construitCompta } from './compta.js';
+import { construitCompta } from './compta/index.js';
 
 // Données PERSISTÉES sur disque (survivent aux redémarrages).
 const dossierData = process.env.COMPTA_DATA ?? fileURLToPath(new URL('../compta-data', import.meta.url));

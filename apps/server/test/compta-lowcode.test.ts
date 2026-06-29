@@ -2,8 +2,8 @@ import { describe, it, expect } from 'vitest';
 import { mkdtempSync, rmSync } from 'node:fs';
 import { tmpdir } from 'node:os';
 import { join } from 'node:path';
-import { Runtime } from '@maides/core';
-import { construitCompta } from '../src/compta.js';
+import { Runtime, renderEcran } from '@maides/core';
+import { construitCompta } from '../src/compta/index.js';
 
 const ADMIN = { login: 'admin', superAdmin: true, niveau: 0 };
 
@@ -197,6 +197,58 @@ describe('comptabilité low-code — partie double, totaux 100% en formules Maxi
     // tri décroissant
     const desc = acces.lignes!({ table: 'fac', tri: 'date_ech desc' });
     expect(desc[0]!.date_ech).toBe('2026-07-05');
+  });
+
+  it('saisie multi-ligne : la grille injecte la clé + recopie date/journal de l’en-tête', () => {
+    const { r4 } = construitCompta();
+    const rt = new Runtime(r4, { user: ADMIN });
+    const html = renderEcran(rt.visu('compta_ecr', ['1']), { acces: rt.accesDonnees() });
+    expect(html).toContain('editable-record-list');                 // grille éditable
+    expect(html).toContain('md-ea-add');                            // bouton « + Ajouter une ligne »
+    expect(html).toMatch(/value="1" data-name="ecr_id"/);           // FK injectée = clé du maître
+    expect(html).toMatch(/value="2026-06-25" data-name="date_ecr"/);// date recopiée de l'en-tête
+    expect(html).toMatch(/value="VE" data-name="jal_code"/);        // journal recopié de l'en-tête
+    expect(html).toContain('<select name="jal_code"');             // journal en liste déroulante (en-tête)
+  });
+
+  it('grille désactivée tant que l’en-tête n’est pas enregistré (pas d’échec silencieux)', () => {
+    const { r4 } = construitCompta();
+    const rt = new Runtime(r4, { user: ADMIN });
+    const html = renderEcran(rt.edition('compta_ecr', []), { acces: rt.accesDonnees() }); // écriture neuve (o=8)
+    expect(html).toContain('editable-record-list'); // la table est là…
+    expect(html).not.toContain('md-ea-add');        // …mais pas de bouton d'ajout (maître non enregistré)
+    expect(html).toContain('Enregistrez d’abord l’en-tête');
+  });
+
+  it('boutons contextuels + listes déroulantes : compte (lookup), tiers/journal (dropdown)', () => {
+    const { r4 } = construitCompta();
+    const rt = new Runtime(r4, { user: ADMIN });
+    const lig = renderEcran(rt.edition('compta_lig', []), { acces: rt.accesDonnees() });
+    expect(lig).toContain('class="querabilite-popup"');            // bouton contextuel de recherche
+    expect(lig).toContain('data-table="cpt"');                     // ... sur le plan comptable
+    expect(lig).toContain('<select name="jal_code"');             // journal déroulant
+    const fac = renderEcran(rt.edition('compta_fac', []), { acces: rt.accesDonnees() });
+    expect(fac).toContain('<select name="type"');                 // type vente/achat déroulant
+  });
+
+  it('états PDF : les listes (lignes, grand livre, journal) sont rendues dans le document', () => {
+    const { r4 } = construitCompta();
+    const rt = new Runtime(r4, { user: ADMIN });
+    const acces = rt.accesDonnees();
+    // écriture imprimable : ses lignes apparaissent en tableau, totaux recalculés
+    const ecr = renderEcran(rt.visu('compta_ecriture_pdf', ['1'], 'let'), { mode: 'document', acces });
+    expect(ecr).toContain('<table');     // tableau des lignes
+    expect(ecr).toContain('707000');     // compte d'une ligne de l'écriture 1
+    // grand livre d'un compte : ses mouvements + solde
+    const gl = renderEcran(rt.visu('compta_grandlivre_pdf', ['707000'], 'let'), { mode: 'document', acces });
+    expect(gl).toContain('Grand livre');
+    expect(gl).toContain('-1000');       // solde du compte 707000 (recalculé)
+    // journal général : toutes les lignes
+    const jr = renderEcran(rt.visu('compta_journal_pdf', [], 'let'), { mode: 'document', acces });
+    expect(jr).toContain('<table');
+    // résultat imprimable : valeur calculée
+    const re = renderEcran(rt.visu('compta_resultat_pdf', ['1'], 'let'), { mode: 'document', acces });
+    expect(re).toContain('500');         // résultat net
   });
 
   it('le référentiel (plan comptable, journaux, tiers) est en place', () => {
